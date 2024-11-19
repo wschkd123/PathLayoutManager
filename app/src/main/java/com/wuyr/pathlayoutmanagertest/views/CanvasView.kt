@@ -1,90 +1,74 @@
-package com.wuyr.pathlayoutmanagertest.views;
+package com.wuyr.pathlayoutmanagertest.views
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import androidx.annotation.Nullable;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
+import android.util.AttributeSet
+import android.view.MotionEvent
+import android.view.View
 
 /**
  * Created by wuyr on 18-5-22 下午10:32.
  */
-public class CanvasView extends View {
+class CanvasView : View {
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
 
-    public CanvasView(Context context) {
-        super(context);
+    override fun onDraw(canvas: Canvas) {
+        canvas.drawBitmap(mBitmap, 0f, 0f, null)
     }
 
-    public CanvasView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
+    private var mPath: Path? = Path()
+    private val mPaint = Paint()
+    private var mBitmap: Bitmap? = null
+    private var mCanvas: Canvas? = null
+
+    init {
+        mPaint.isAntiAlias = true
+        mPaint.color = Color.BLUE
+        mPaint.strokeCap = Paint.Cap.ROUND
+        mPaint.style = Paint.Style.STROKE
+        mPaint.strokeWidth = 10f
     }
 
-    public CanvasView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_4444)
+        mCanvas = Canvas(mBitmap!!)
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        canvas.drawBitmap(mBitmap, 0, 0, null);
-    }
-
-    private Path mPath = new Path();
-    private Paint mPaint = new Paint();
-    private Bitmap mBitmap;
-    private Canvas mCanvas;
-
-    {
-        mPaint.setAntiAlias(true);
-        mPaint.setColor(Color.BLUE);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(10);
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_4444);
-        mCanvas = new Canvas(mBitmap);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (!isEnabled()) {
-            return false;
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (!isEnabled) {
+            return false
         }
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                mPath.moveTo(event.getX(), event.getY());
-                break;
-            case MotionEvent.ACTION_MOVE:
-            case MotionEvent.ACTION_UP:
-                mPath.lineTo(event.getX(), event.getY());
-                break;
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> mPath!!.moveTo(event.x, event.y)
+            MotionEvent.ACTION_MOVE, MotionEvent.ACTION_UP -> mPath!!.lineTo(event.x, event.y)
         }
-        mCanvas.drawPath(mPath, mPaint);
-        invalidate();
-        return true;
+        mCanvas!!.drawPath(mPath, mPaint)
+        invalidate()
+        return true
     }
 
-    public Path getPath() {
-        return mPath;
-    }
+    var path: Path?
+        get() = mPath
+        set(path) {
+            mPath = path
+            mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444)
+            mCanvas = Canvas(mBitmap!!)
+            mCanvas!!.drawPath(mPath!!, mPaint)
+            invalidate()
+        }
 
-    public void clear() {
-        setPath(new Path());
-    }
-
-    public void setPath(Path path){
-        mPath = path;
-        mBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_4444);
-        mCanvas = new Canvas(mBitmap);
-        mCanvas.drawPath(mPath, mPaint);
-        invalidate();
+    fun clear() {
+        path = Path()
     }
 }

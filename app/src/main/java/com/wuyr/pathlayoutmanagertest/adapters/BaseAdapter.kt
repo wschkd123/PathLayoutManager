@@ -1,127 +1,116 @@
-package com.wuyr.pathlayoutmanagertest.adapters;
+package com.wuyr.pathlayoutmanagertest.adapters
 
-import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 
 /**
  * Created by wuyr on 17-10-24 下午1:05.
  */
+@Suppress("unused")
+abstract class BaseAdapter<O, VH : RecyclerView.ViewHolder>(
+    protected var mContext: Context,
+    data: List<O>?,
+    protected var mLayoutId: Int,
+    private val mHolderClass: Class<VH>
+) : RecyclerView.Adapter<VH>() {
+    protected var mData: MutableList<O>
+    protected var mLayoutInflater: LayoutInflater
+    protected var mOnSizeChangedListener: OnSizeChangedListener? = null
 
-@SuppressWarnings({"WeakerAccess", "unused"})
-public abstract class BaseAdapter<O, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
-
-    protected Context mContext;
-    protected List<O> mData;
-    protected int mLayoutId;
-    protected LayoutInflater mLayoutInflater;
-    protected OnSizeChangedListener mOnSizeChangedListener;
-    private Class<VH> mHolderClass;
-
-    public BaseAdapter(Context context, List<O> data, int layoutId, Class<VH> holderClass) {
-        mContext = context;
-        mData = data == null ? new ArrayList<>() : data;
-        mLayoutId = layoutId;
-        mLayoutInflater = LayoutInflater.from(context);
-        mHolderClass = holderClass;
+    init {
+        mData = (data ?: ArrayList()) as MutableList<O>
+        mLayoutInflater = LayoutInflater.from(mContext)
     }
 
-    @NonNull
-    @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        try {
-            Constructor<VH> constructor = mHolderClass.getDeclaredConstructor(View.class);
-            return constructor.newInstance(mLayoutInflater.inflate(mLayoutId, parent, false));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("can't find ViewHolder.class!");
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        return try {
+            val constructor = mHolderClass.getDeclaredConstructor(
+                View::class.java
+            )
+            constructor.newInstance(mLayoutInflater.inflate(mLayoutId, parent, false))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw RuntimeException("can't find ViewHolder.class!")
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return mData.size();
+    override fun getItemCount(): Int {
+        return mData.size
     }
 
-    public void addData(@NonNull O o) {
-        mData.add(o);
-        notifyItemInserted(mData.size());
-        notifyOnSizeChanged();
+    fun addData(o: O) {
+        mData.add(o)
+        notifyItemInserted(mData.size)
+        notifyOnSizeChanged()
     }
 
-    public void addData(int index, @NonNull O o) {
-        mData.add(index, o);
-        notifyItemInserted(index);
-        notifyOnSizeChanged();
+    fun addData(index: Int, o: O) {
+        mData.add(index, o)
+        notifyItemInserted(index)
+        notifyOnSizeChanged()
     }
 
-    public void addData(@NonNull List<O> data) {
+    open fun addData(data: List<O>) {
         if (!data.isEmpty()) {
-            int oldSize = mData.size() - 1;
-            mData.addAll(data);
-            notifyItemRangeChanged(oldSize, mData.size());
-            notifyOnSizeChanged();
+            val oldSize = mData.size - 1
+            mData.addAll(data)
+            notifyItemRangeChanged(oldSize, mData.size)
+            notifyOnSizeChanged()
         }
     }
 
-    public boolean removeData(@NonNull O o) {
-        int pos = mData.indexOf(o);
+    fun removeData(o: O): Boolean {
+        val pos = mData.indexOf(o)
         if (pos != -1) {
-            mData.remove(o);
-            notifyItemRemoved(pos);
-            notifyOnSizeChanged();
-            return true;
+            mData.remove(o)
+            notifyItemRemoved(pos)
+            notifyOnSizeChanged()
+            return true
         }
-        return false;
+        return false
     }
 
-    public boolean removeData(int pos) {
-        if (pos > -1 && pos < mData.size()) {
-            mData.remove(pos);
-            notifyItemRemoved(pos);
-            notifyOnSizeChanged();
-            return true;
+    fun removeData(pos: Int): Boolean {
+        if (pos > -1 && pos < mData.size) {
+            mData.removeAt(pos)
+            notifyItemRemoved(pos)
+            notifyOnSizeChanged()
+            return true
         }
-        return false;
+        return false
     }
 
-    public void setData(List<O> data) {
+    fun setData(data: MutableList<O>?) {
         if (data != null) {
-            mData = data;
-            notifyDataSetChanged();
-            notifyOnSizeChanged();
+            mData = data
+            notifyDataSetChanged()
+            notifyOnSizeChanged()
         }
     }
 
-    public void clearData() {
-        mData.clear();
-        notifyDataSetChanged();
-        notifyOnSizeChanged();
+    fun clearData() {
+        mData.clear()
+        notifyDataSetChanged()
+        notifyOnSizeChanged()
     }
 
-    public List<O> getData() {
-        return mData;
-    }
+    val data: List<O>
+        get() = mData
 
-    private void notifyOnSizeChanged() {
+    private fun notifyOnSizeChanged() {
         if (mOnSizeChangedListener != null) {
-            mOnSizeChangedListener.onSizeChanged(mData.size());
+            mOnSizeChangedListener!!.onSizeChanged(mData.size)
         }
     }
 
-    public void setOnSizeChangedListener(OnSizeChangedListener listener) {
-        mOnSizeChangedListener = listener;
+    fun setOnSizeChangedListener(listener: OnSizeChangedListener?) {
+        mOnSizeChangedListener = listener
     }
 
-    public interface OnSizeChangedListener {
-        void onSizeChanged(int currentSize);
+    interface OnSizeChangedListener {
+        fun onSizeChanged(currentSize: Int)
     }
-
 }
