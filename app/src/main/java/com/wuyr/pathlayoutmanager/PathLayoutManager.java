@@ -10,6 +10,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -33,6 +35,8 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
     @Retention(RetentionPolicy.SOURCE)
     private @interface ScrollMode {
     }
+
+    private static final String TAG = "PathLayoutManager";
 
     /**
      * 普通模式
@@ -60,6 +64,7 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
     private boolean isAutoSelect; //是否自动选中
     private float mAutoSelectFraction; //自动选中的落点 (0~1)
     private float[] mScaleRatio; //缩放比例
+    private float[] mAlphas; //透明度
     private long mFixingAnimationDuration; //自动选中的动画时长
     private boolean isAnimatorInitialized;
     private int mCacheCount; //缓存的Item个数
@@ -196,6 +201,7 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
      * @param needLayoutItems 需要布局的Item
      */
     private void onLayout(RecyclerView.Recycler recycler, List<PosTan> needLayoutItems) {
+        Log.w(TAG, "onLayout");
         int x, y;
         View item;
         for (PosTan tmp : needLayoutItems) {
@@ -213,6 +219,12 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
                 float scale = getScale(tmp.fraction);
                 item.setScaleX(scale);
                 item.setScaleY(scale);
+                Log.i(TAG, "onLayout scale=" + scale);
+            }
+            if (mAlphas != null) {
+                float alpha = getAlpha(tmp.fraction);
+                item.setAlpha(alpha);
+                Log.i(TAG, "onLayout alpha=" + alpha);
             }
         }
     }
@@ -263,6 +275,54 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
         float scale = distance * fraction;
         float result = minScale + scale;
         return isFinite(result) ? result : minScale;
+    }
+
+    /**
+     * 根据Item在Path上的位置来获取对应的Alpha
+     *
+     * @param fraction Item位置相对于Path总长度的百分比
+     * @return 该Item的Alpha
+     */
+    private float getAlpha(float fraction) {
+        boolean isHasMin = false;
+        boolean isHasMax = false;
+        float minAlpha = 0;
+        float maxAlpha = 0;
+        float alphaPosition;
+        float minFraction = 1, maxFraction = 1;
+        //必须从小到大遍历，才能找到最贴近fraction的alpha
+        for (int i = 1; i < mAlphas.length; i += 2) {
+            alphaPosition = mAlphas[i];
+            if (alphaPosition <= fraction) {
+                minAlpha = mAlphas[i - 1];
+                minFraction = mAlphas[i];
+                isHasMin = true;
+            } else {
+                break;
+            }
+        }
+        //必须从大到小遍历，才能找到最贴近fraction的alpha
+        for (int i = mAlphas.length - 1; i >= 1; i -= 2) {
+            alphaPosition = mAlphas[i];
+            if (alphaPosition >= fraction) {
+                maxAlpha = mAlphas[i - 1];
+                maxFraction = mAlphas[i];
+                isHasMax = true;
+            } else {
+                break;
+            }
+        }
+        if (!isHasMin) {
+            minAlpha = 1;
+        }
+        if (!isHasMax) {
+            maxAlpha = 1;
+        }
+        fraction = solveTwoPointForm(minFraction, maxFraction, fraction);
+        float distance = maxAlpha - minAlpha;
+        float alpha = distance * fraction;
+        float result = minAlpha + alpha;
+        return isFinite(result) ? result : minAlpha;
     }
 
     /**
@@ -946,6 +1006,50 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
     }
 
     /**
+     * 设置平滑透明度
+     *
+     * @param alphas 透明度， 数组长度必须是双数，
+     *               偶数索引表示透明度数值，
+     *               奇数索引表示在路径上的位置(0~1)
+     *               奇数索引必须要递增，即越往后的数值应越大
+     *               例如： setItemAlpha(0.8, 0.5) 即表示在路径的50%处把Item透明度设置为0.8
+     *               setItemAlpha(0, 0, 1, 0.5, 0, 1) 即表示在路径的起点和终点处，皆把Item缩放至原来的0%，而在50%处把Item恢复原样
+     */
+    public void setItemAlpha(float... alphas) {
+        if (alphas.length == 0) {
+            alphas = new float[]{1, 1};
+        }
+        for (float tmp : alphas) {
+            if (tmp < 0) {
+                throw new IllegalArgumentException("Array value can not be negative!");
+            }
+        }
+        if (mAlphas != alphas) {
+            if (alphas.length < 2 || alphas.length % 2 != 0) {
+                throw new IllegalArgumentException("Array length no match!");
+            }
+            mAlphas = alphas;
+            if (mAlphas[1] != 0) {
+                mAlphas = insertElement(true, mAlphas, 0.2F, 0F);
+            }
+            if (mAlphas[mAlphas.length - 1] != 1) {
+                mAlphas = insertElement(false, mAlphas, 0.2F, 1F);
+            }
+            float min = mAlphas[1];
+            float temp;
+            for (int i = 1; i < mAlphas.length; i += 2) {
+                temp = mAlphas[i];
+                if (min > temp) {
+                    throw new IllegalArgumentException("Incorrect array value! position must be from small to large");
+                } else {
+                    min = temp;
+                }
+            }
+            requestLayout();
+        }
+    }
+
+    /**
      * 扩展数组元素
      *
      * @param isAddFromHead 是否从头部添加
@@ -1002,6 +1106,7 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
             mKeyframes = null;
         }
         mScaleRatio = null;
+        mAlphas = null;
         mItemAnimator = null;
         mRecycler = null;
         mState = null;

@@ -173,6 +173,27 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
                     }
                     mToast.show()
                 }
+
+                // 透明度
+                val alphaContent =
+                    (findViewById<View>(R.id.alpha_text) as TextView).text.toString()
+                if (TextUtils.isEmpty(alphaContent)) {
+                    mPathLayoutManager!!.setItemScaleRatio()
+                } else {
+                    val alphasString =
+                        alphaContent.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                    val alphas = FloatArray(alphasString.size)
+                    try {
+                        var i = 0
+                        while (i < alphasString.size) {
+                            alphas[i] = alphasString[i].toFloat()
+                            i++
+                        }
+                        mPathLayoutManager!!.setItemAlpha(*alphas)
+                    } catch (e: Exception) {
+                        mToast.setText(e.toString())
+                    }
+                }
             }
 
             else -> {}
