@@ -1,7 +1,6 @@
 package com.wuyr.pathlayoutmanagertest.views
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -12,32 +11,20 @@ import android.view.MotionEvent
 import android.view.View
 import com.wuyr.pathlayoutmanagertest.dpToPx
 
-/**
- * Created by wuyr on 18-5-22 下午10:32.
- */
-class CanvasView : View {
-    constructor(context: Context?) : super(context)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    )
-
-    private var mPath: Path = Path()
-    private val mPaint = Paint()
-
-    val start = PointF(0f,0f)
-    val end = PointF(0f,0f)
-    val control = PointF(0f,0f)
-
-    init {
-        mPaint.isAntiAlias = true
-        mPaint.color = Color.BLUE
-        mPaint.strokeCap = Paint.Cap.ROUND
-        mPaint.style = Paint.Style.STROKE
-        mPaint.strokeWidth = 10f
+class BezierView @JvmOverloads constructor(
+    context: Context?,
+    attributeSet: AttributeSet? = null
+) : View(context, attributeSet) {
+    private val mPaint: Paint = Paint().apply {
+        color = Color.BLACK
+        strokeWidth = 8f
+        style = Paint.Style.STROKE
+        textSize = 60f
     }
+    private val path = Path()
+    private val start: PointF = PointF(0f, 0f)
+    private val end: PointF = PointF(0f, 0f)
+    private val control: PointF = PointF(0f, 0f)
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -61,19 +48,8 @@ class CanvasView : View {
         return true
     }
 
-    var path: Path
-        get() = mPath
-        set(path) {
-//            mPath = path
-//            invalidate()
-        }
-
-    fun clear() {
-        path.reset()
-    }
-
     override fun onDraw(canvas: Canvas) {
-//        canvas.drawBitmap(mBitmap, 0f, 0f, null)
+        super.onDraw(canvas)
 
         // 绘制数据点和控制点
         mPaint.color = Color.GRAY
@@ -87,13 +63,12 @@ class CanvasView : View {
         canvas.drawLine(start.x, start.y, control.x, control.y, mPaint)
         canvas.drawLine(end.x, end.y, control.x, control.y, mPaint)
 
-
         // 绘制贝塞尔曲线
         mPaint.color = Color.RED
         mPaint.strokeWidth = 8f
         path.reset()
-        mPath.moveTo(start.x, start.y)
-        mPath.quadTo(control.x, control.y, end.x, end.y)
-        canvas.drawPath(mPath, mPaint)
+        path.moveTo(start.x, start.y)
+        path.quadTo(control.x, control.y, end.x, end.y)
+        canvas.drawPath(path, mPaint)
     }
 }

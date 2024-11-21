@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wuyr.pathlayoutmanager.PathLayoutManager
 import com.wuyr.pathlayoutmanagertest.R
 import com.wuyr.pathlayoutmanagertest.adapters.PathAdapter
+import com.wuyr.pathlayoutmanagertest.dpToPx
 import com.wuyr.pathlayoutmanagertest.views.CanvasView
 import java.util.Locale
 
@@ -39,6 +40,35 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
         super.onCreate(savedInstanceState)
         setContentView(R.layout.act_main_view)
         initView()
+        mTrackView.post {
+            setupView()
+        }
+    }
+
+    private fun setupView() {
+        endDrawClick()
+        mAdapter?.apply {
+            setType(PathAdapter.TYPE_J20)
+            mAdapter?.addData(MutableList(5) { null })
+        }
+
+        mPathLayoutManager!!.apply {
+            setScrollMode(PathLayoutManager.SCROLL_MODE_LOOP)
+            setOrientation(RecyclerView.HORIZONTAL)
+            setItemDirectionFixed(true)
+            setAutoSelect(true)
+            setFlingEnable(false)
+            mTrackView.visibility = View.VISIBLE
+//            setItemOffset(50.dpToPx(this@MainActivity))
+            setItemOffset(372) // 刚好显示5个
+            setAutoSelectFraction(0.5f)
+            setFixingAnimationDuration(250)
+            // 缩放和透明度
+            val ratios = floatArrayOf(0.737f, 0f, 0.737f, 0.25f, 1f, 0.5f, 0.737f, 0.75f, 0.737f, 1f)
+            setItemScaleRatio(*ratios)
+            val alphas = floatArrayOf(0.3f, 0f, 0.7f, 0.25f, 1f, 0.5f, 0.7f, 0.75f, 0.3f, 1f)
+            setItemAlpha(*alphas)
+        }
     }
 
     private fun initView() {
@@ -81,20 +111,13 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
             }
 
             R.id.end_draw -> {
-                val path = mCanvasView.path
-                if (path != null && !path.isEmpty) {
-                    mCanvasView.visibility = View.INVISIBLE
-                    mTrackView.path = mCanvasView.path
-                    mTrackView.visibility = if (isShowPath) View.VISIBLE else View.INVISIBLE
-                    mPathLayoutManager!!.updatePath(mCanvasView.path)
-                    isPathInitialized = true
-                }
+                endDrawClick()
             }
 
             R.id.add -> if (checkIsPathInitialized()) {
                 val data: MutableList<Any?> = ArrayList()
                 var i = 0
-                while (i < 10) {
+                while (i < 12) {
                     data.add(null)
                     i++
                 }
@@ -152,51 +175,24 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
             }
 
             R.id.apply_scale_ratio -> if (checkIsPathInitialized()) {
-                val content =
-                    (findViewById<View>(R.id.scale_ratio_text) as TextView).text.toString()
-                if (TextUtils.isEmpty(content)) {
-                    mPathLayoutManager!!.setItemScaleRatio()
-                } else {
-                    val ratiosString =
-                        content.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                    val ratios = FloatArray(ratiosString.size)
-                    try {
-                        var i = 0
-                        while (i < ratiosString.size) {
-                            ratios[i] = ratiosString[i].toFloat()
-                            i++
-                        }
-                        mPathLayoutManager!!.setItemScaleRatio(*ratios)
-                        mToast.setText(R.string.success)
-                    } catch (e: Exception) {
-                        mToast.setText(e.toString())
-                    }
-                    mToast.show()
-                }
-
-                // 透明度
-                val alphaContent =
-                    (findViewById<View>(R.id.alpha_text) as TextView).text.toString()
-                if (TextUtils.isEmpty(alphaContent)) {
-                    mPathLayoutManager!!.setItemScaleRatio()
-                } else {
-                    val alphasString =
-                        alphaContent.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                    val alphas = FloatArray(alphasString.size)
-                    try {
-                        var i = 0
-                        while (i < alphasString.size) {
-                            alphas[i] = alphasString[i].toFloat()
-                            i++
-                        }
-                        mPathLayoutManager!!.setItemAlpha(*alphas)
-                    } catch (e: Exception) {
-                        mToast.setText(e.toString())
-                    }
-                }
+                val ratios = floatArrayOf(0.737f, 0f, 0.737f, 0.25f, 1f, 0.5f, 0.737f, 0.75f, 0.737f, 1f)
+                mPathLayoutManager!!.setItemScaleRatio(*ratios)
+                val alphas = floatArrayOf(0.3f, 0f, 0.7f, 0.25f, 1f, 0.5f, 0.7f, 0.75f, 0.3f, 1f)
+                mPathLayoutManager!!.setItemAlpha(*alphas)
             }
 
             else -> {}
+        }
+    }
+
+    private fun endDrawClick() {
+        val path = mCanvasView.path
+        if (!path.isEmpty) {
+            mCanvasView.visibility = View.INVISIBLE
+            mTrackView.path = mCanvasView.path
+            mTrackView.visibility = if (isShowPath) View.VISIBLE else View.INVISIBLE
+            mPathLayoutManager!!.updatePath(mCanvasView.path)
+            isPathInitialized = true
         }
     }
 

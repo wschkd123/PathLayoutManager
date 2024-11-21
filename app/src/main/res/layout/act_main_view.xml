@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#fff"
@@ -15,13 +15,19 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
             android:background="@color/colorPrimary"
             android:theme="@style/AppTheme.AppBarOverlay"
             app:title="@string/app_name" />
 
         <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="375:200"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            android:background="#E4BDFE">
 
             <com.wuyr.pathlayoutmanagertest.views.CanvasView
                 android:id="@+id/track_panel"
@@ -37,8 +43,13 @@
                 android:id="@+id/canvas_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
+
+            <com.wuyr.pathlayoutmanagertest.views.BezierView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
         </FrameLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
         layout="@layout/layout_menu"

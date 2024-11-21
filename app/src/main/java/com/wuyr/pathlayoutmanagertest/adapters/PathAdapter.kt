@@ -7,9 +7,9 @@ import android.graphics.BitmapFactory
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.wuyr.pathlayoutmanagertest.R
+import com.wuyr.pathlayoutmanagertest.dpToPx
 import java.util.Locale
 import java.util.Random
 
@@ -39,7 +39,7 @@ class PathAdapter(
             getBitmapById(R.drawable.ic_1),
             getBitmapById(R.drawable.ic_2),
             getBitmapById(R.drawable.ic_3),
-            getBitmapById(R.drawable.ic_j20),
+            getBitmapById(R.drawable.ic_character),
             getBitmapById(R.drawable.ic_dragon_head),
             getBitmapById(R.drawable.ic_dragon_body_1),
             getBitmapById(R.drawable.ic_dragon_body_2),
@@ -91,7 +91,8 @@ class PathAdapter(
         holder.imageView2.visibility = View.VISIBLE
         holder.imageView.setImageBitmap(null)
         holder.imageView.visibility = View.GONE
-        holder.imageView2.layoutParams.width = 180
+        holder.imageView2.layoutParams.width = 76.dpToPx(holder.itemView.context)
+        holder.imageView2.layoutParams.height = 76.dpToPx(holder.itemView.context)
         holder.imageView2.requestLayout()
         holder.imageView2.setImageBitmap(getBitmap(3))
     }
