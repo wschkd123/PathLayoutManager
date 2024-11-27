@@ -15,6 +15,8 @@ import androidx.core.content.ContextCompat
  */
 fun Int.dpToPx(context: Context) = YWCommonUtil.dp2px(context, this.toFloat())
 
+fun Int.dpToPxFloat(context: Context) = YWCommonUtil.dp2px(context, this.toFloat()).toFloat()
+
 /**
  * 颜色资源 id 转为 颜色
  */

@@ -19,6 +19,7 @@ import com.wuyr.pathlayoutmanagertest.R
 import com.wuyr.pathlayoutmanagertest.adapters.PathAdapter
 import com.wuyr.pathlayoutmanagertest.dpToPx
 import com.wuyr.pathlayoutmanagertest.views.CanvasView
+import com.wuyr.pathlayoutmanagertest.views.RecBottomView
 import java.util.Locale
 
 /**
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
     OnSeekBarChangeListener {
     private var mPathLayoutManager: PathLayoutManager? = null
     private lateinit var mTrackView: CanvasView
-    private lateinit var mCanvasView: CanvasView
+    private lateinit var mRecBottomView: RecBottomView
     private var mAdapter: PathAdapter? = null
     private val mToast: Toast by lazy {
         Toast.makeText(this, "", Toast.LENGTH_SHORT)
@@ -39,17 +40,17 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.act_main_view)
-        initView()
-        mTrackView.post {
-            setupView()
-        }
+//        initView()
+//        mTrackView.post {
+//            setupView()
+//        }
     }
 
     private fun setupView() {
         endDrawClick()
         mAdapter?.apply {
             setType(PathAdapter.TYPE_J20)
-            mAdapter?.addData(MutableList(5) { null })
+            mAdapter?.addData(MutableList(8) { null })
         }
 
         mPathLayoutManager!!.apply {
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
             setFlingEnable(false)
             mTrackView.visibility = View.VISIBLE
 //            setItemOffset(50.dpToPx(this@MainActivity))
-            setItemOffset(372) // 刚好显示5个
+            setItemOffset(114.dpToPx(this@MainActivity)) // 刚好显示5个
             setAutoSelectFraction(0.5f)
             setFixingAnimationDuration(250)
             // 缩放和透明度
@@ -79,10 +80,10 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
         (findViewById<View>(R.id.drawer) as DrawerLayout).addDrawerListener(toggle)
         toggle.syncState()
         mTrackView = findViewById(R.id.track_panel)
-        mCanvasView = findViewById(R.id.canvas_view)
-        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.layoutManager = PathLayoutManager(null, 150).also { mPathLayoutManager = it }
-        recyclerView.adapter = PathAdapter(this, null).also { mAdapter = it }
+        mRecBottomView = findViewById(R.id.canvas_view)
+//        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
+//        recyclerView.layoutManager = PathLayoutManager(null, 150).also { mPathLayoutManager = it }
+//        recyclerView.adapter = PathAdapter(this, null).also { mAdapter = it }
         findViewById<View>(R.id.card).isEnabled = false
         findViewById<View>(R.id.normal).isEnabled = false
         (findViewById<View>(R.id.orientation) as Switch).setOnCheckedChangeListener(this)
@@ -105,8 +106,7 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
         when (view.id) {
             R.id.start_draw -> {
                 mAdapter!!.clearData()
-                mCanvasView.visibility = View.VISIBLE
-                mCanvasView.clear()
+                mRecBottomView.visibility = View.VISIBLE
                 mTrackView.visibility = View.INVISIBLE
             }
 
@@ -186,12 +186,12 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
     }
 
     private fun endDrawClick() {
-        val path = mCanvasView.path
+        val path = mRecBottomView.path
         if (!path.isEmpty) {
-            mCanvasView.visibility = View.INVISIBLE
-            mTrackView.path = mCanvasView.path
+//            mRecBottomView.visibility = View.INVISIBLE
+            mTrackView.path = mRecBottomView.path
             mTrackView.visibility = if (isShowPath) View.VISIBLE else View.INVISIBLE
-            mPathLayoutManager!!.updatePath(mCanvasView.path)
+            mPathLayoutManager!!.updatePath(mRecBottomView.path)
             isPathInitialized = true
         }
     }
@@ -214,7 +214,7 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
                 R.id.show_path -> {
                     isShowPath = isChecked
                     if (isChecked) {
-                        if (mCanvasView.visibility == View.INVISIBLE) {
+                        if (mRecBottomView.visibility == View.INVISIBLE) {
                             mTrackView.visibility = View.VISIBLE
                         }
                     } else {

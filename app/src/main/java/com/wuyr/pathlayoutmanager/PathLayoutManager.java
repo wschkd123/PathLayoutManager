@@ -371,6 +371,7 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
         int overflowCount = getOverflowCount();
         //得出第一个可见的item
         mFirstVisibleItemPos = overflowCount - mItemCountInScreen - 1;
+        Log.w(TAG, "initNeedLayoutLoopScrollItems: mFirstVisibleItemPos=" + mFirstVisibleItemPos);
         float currentDistance;
         float fraction;
         PosTan posTan;
@@ -698,6 +699,7 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
 //            mItemOffset改变后要刷新mItemCountInScreen
             if (mKeyframes != null) {
                 mItemCountInScreen = mKeyframes.getPathLength() / mItemOffset + 1;
+                Log.w(TAG, "setItemOffset: mItemCountInScreen=" + mItemCountInScreen);
                 requestLayout();
             }
         }

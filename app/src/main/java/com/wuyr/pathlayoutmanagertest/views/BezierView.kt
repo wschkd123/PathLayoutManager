@@ -11,6 +11,9 @@ import android.view.MotionEvent
 import android.view.View
 import com.wuyr.pathlayoutmanagertest.dpToPx
 
+/**
+ * 拖动控制点绘制贝塞尔曲线
+ */
 class BezierView @JvmOverloads constructor(
     context: Context?,
     attributeSet: AttributeSet? = null

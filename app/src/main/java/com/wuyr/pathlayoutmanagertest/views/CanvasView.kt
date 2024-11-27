@@ -46,11 +46,11 @@ class CanvasView : View {
         val centerX = w / 2
         val centerY = h / 2
         start.x = 0f
-        start.y = 10.dpToPx(context).toFloat()
+        start.y = 97.dpToPx(context).toFloat()
         end.x = w.toFloat()
-        end.y = 10.dpToPx(context).toFloat()
+        end.y = 97.dpToPx(context).toFloat()
         control.x = centerX.toFloat()
-        control.y = centerY.toFloat()
+        control.y = h.toFloat() + 16.dpToPx(context).toFloat()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -64,8 +64,8 @@ class CanvasView : View {
     var path: Path
         get() = mPath
         set(path) {
-//            mPath = path
-//            invalidate()
+            mPath = path
+            invalidate()
         }
 
     fun clear() {
@@ -73,8 +73,6 @@ class CanvasView : View {
     }
 
     override fun onDraw(canvas: Canvas) {
-//        canvas.drawBitmap(mBitmap, 0f, 0f, null)
-
         // 绘制数据点和控制点
         mPaint.color = Color.GRAY
         mPaint.strokeWidth = 20f
