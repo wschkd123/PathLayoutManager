@@ -2,17 +2,15 @@ package com.wuyr.pathlayoutmanagertest.views
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
-import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.wuyr.pathlayoutmanager.PathLayoutManager
-import com.wuyr.pathlayoutmanagertest.R
 import com.wuyr.pathlayoutmanagertest.adapters.PathAdapter
 import com.wuyr.pathlayoutmanagertest.dpToPx
+import com.wuyr.pathlayoutmanagertest.dpToPxFloat
 import java.util.Locale
 
 /**
@@ -25,6 +23,7 @@ class RecBottomView @JvmOverloads constructor(
     attributeSet: AttributeSet? = null
 ) : FrameLayout(context, attributeSet) {
 
+    private val pathStartY = 40.dpToPxFloat(context)
     val path = Path()
     private var recyclerView: RecyclerView
     private val mAdapter: PathAdapter = PathAdapter(context)
@@ -77,12 +76,11 @@ class RecBottomView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         if (w <= 0 || h <= 0) return
-        val marginTop = 80.dpToPx(context).toFloat()
         val controlX = w / 2f
         val controlY = h.toFloat() + 16.dpToPx(context).toFloat()
         path.reset()
-        path.moveTo(0f, marginTop)
-        path.quadTo(controlX, controlY, w.toFloat(), marginTop)
+        path.moveTo(0f, pathStartY)
+        path.quadTo(controlX, controlY, w.toFloat(), pathStartY)
     }
 
     override fun onDraw(canvas: Canvas?) {
