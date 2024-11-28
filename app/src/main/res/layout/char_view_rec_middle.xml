@@ -9,23 +9,22 @@
         android:id="@+id/avatar_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        tools:src="@drawable/char_character_temp"
+        android:src="@drawable/char_character_temp"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-<!--
     <ImageView
         android:id="@+id/avatar_frame_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:scaleType="fitXY"
         android:src="@drawable/char_rec_character_frame"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
--->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

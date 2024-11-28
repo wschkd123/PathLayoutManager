@@ -27,7 +27,7 @@ class RecBottomView @JvmOverloads constructor(
 
     val path = Path()
     private var recyclerView: RecyclerView
-    private val mAdapter: PathAdapter = PathAdapter(context, null)
+    private val mAdapter: PathAdapter = PathAdapter(context)
     private val mPathLayoutManager: PathLayoutManager = PathLayoutManager(null, 150)
 
 
@@ -46,8 +46,8 @@ class RecBottomView @JvmOverloads constructor(
 
     private fun initLayoutManager() {
         mAdapter.apply {
-            setType(PathAdapter.TYPE_J20)
-            mAdapter.addData(MutableList(8) { null })
+            val list = MutableList<String?>(8) { null }
+            mAdapter.setData(list)
         }
 
         mPathLayoutManager.apply {
@@ -77,7 +77,7 @@ class RecBottomView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         if (w <= 0 || h <= 0) return
-        val marginTop = 97.dpToPx(context).toFloat()
+        val marginTop = 80.dpToPx(context).toFloat()
         val controlX = w / 2f
         val controlY = h.toFloat() + 16.dpToPx(context).toFloat()
         path.reset()
