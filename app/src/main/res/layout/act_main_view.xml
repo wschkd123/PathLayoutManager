@@ -56,7 +56,7 @@
                 android:layout_height="match_parent" />
 
             <com.wuyr.pathlayoutmanagertest.views.RecBottomView
-                android:id="@+id/canvas_view"
+                android:id="@+id/rec_bottom_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </FrameLayout>
@@ -66,7 +66,6 @@
             android:id="@+id/overlap_view"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:background="#3300F0FF"
             app:layout_constraintBottom_toTopOf="@+id/bottom_fl"/>
 
         <View

@@ -609,6 +609,16 @@ public class PathLayoutManager extends RecyclerView.LayoutManager implements Rec
     }
 
     /**
+     * 判断是否满足无限循环滚动条件： Item的总长度要大于Path的总长度
+     */
+    public boolean canLoopScroll() {
+        checkKeyframes();
+        int pathLength = mKeyframes.getPathLength();
+        int itemLength = getItemLength();
+        return itemLength - pathLength > mItemOffset;
+    }
+
+    /**
      * 判断是否满足无限循环滚动条件
      * 条件： 必须明确开始无限循环模式，并且Item的总长度要大声Path的总长度
      */

@@ -1,14 +1,13 @@
 package com.wuyr.pathlayoutmanagertest.views
 
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Path
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.wuyr.pathlayoutmanager.PathLayoutManager
-import com.wuyr.pathlayoutmanagertest.adapters.PathAdapter
+import com.wuyr.pathlayoutmanagertest.adapters.RecPathAdapter
 import com.wuyr.pathlayoutmanagertest.dpToPx
 import com.wuyr.pathlayoutmanagertest.dpToPxFloat
 import java.util.Locale
@@ -26,8 +25,8 @@ class RecBottomView @JvmOverloads constructor(
     private val pathStartY = 40.dpToPxFloat(context)
     val path = Path()
     private var recyclerView: RecyclerView
-    private val mAdapter: PathAdapter = PathAdapter(context)
-    private val mPathLayoutManager: PathLayoutManager = PathLayoutManager(null, 150)
+    private val mAdapter: RecPathAdapter = RecPathAdapter(context)
+    private val mPathLayoutManager: PathLayoutManager = PathLayoutManager(null, 150, RecyclerView.HORIZONTAL)
 
 
     init {
@@ -37,27 +36,28 @@ class RecBottomView @JvmOverloads constructor(
             adapter = mAdapter
         }
         addView(recyclerView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        initLayoutManager()
+
         // 布局完成获取宽高后，初始化LayoutManager
         post {
-            initLayoutManager()
+            setData()
         }
     }
 
-    private fun initLayoutManager() {
-        mAdapter.apply {
-            val list = MutableList<String?>(8) { null }
-            mAdapter.setData(list)
-        }
+    fun setData() {
+        mPathLayoutManager.updatePath(path)
+        val list = MutableList<String?>(10) { null }
+        mAdapter.setData(list)
+        mPathLayoutManager.setItemOffset(90.dpToPx(context))
+        setScrollMode()
+        mPathLayoutManager.scrollToPosition(0)
+    }
 
+    private fun initLayoutManager() {
         mPathLayoutManager.apply {
-            updatePath(path)
-            setScrollMode(PathLayoutManager.SCROLL_MODE_LOOP)
-            setOrientation(RecyclerView.HORIZONTAL)
             setItemDirectionFixed(true)
             setAutoSelect(true)
             setFlingEnable(false)
-            // 刚好显示5个
-            setItemOffset(114.dpToPx(context))
             setAutoSelectFraction(0.5f)
             setFixingAnimationDuration(250)
             // 缩放和透明度
@@ -72,6 +72,14 @@ class RecBottomView @JvmOverloads constructor(
         }
     }
 
+    private fun setScrollMode() {
+        if (mPathLayoutManager.canLoopScroll()) {
+            mPathLayoutManager.setScrollMode(PathLayoutManager.SCROLL_MODE_LOOP)
+        } else {
+            mPathLayoutManager.setScrollMode(PathLayoutManager.SCROLL_MODE_OVERFLOW)
+        }
+    }
+
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -83,9 +91,5 @@ class RecBottomView @JvmOverloads constructor(
         path.quadTo(controlX, controlY, w.toFloat(), pathStartY)
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-//        canvas?.drawPath(path, paint)
-    }
 
 }
